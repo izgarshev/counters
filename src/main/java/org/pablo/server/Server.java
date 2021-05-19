@@ -1,13 +1,13 @@
-package org.pablo;
+package org.pablo.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication
-@ComponentScan(value = "org.pablo.controllers")
+@SpringBootApplication(scanBasePackages = "org.pablo.server")
 public class Server {
     public static void main(String[] args) {
         SpringApplication.run(Server.class, args);
     }
+
+
 }

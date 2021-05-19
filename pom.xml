@@ -19,6 +19,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>2.4.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>5.3.7</version>
+        </dependency>
 
 
 <!--          tests-->

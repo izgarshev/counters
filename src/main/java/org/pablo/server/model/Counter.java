@@ -1,20 +1,26 @@
-package org.pablo.model;
+package org.pablo.server.model;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Counter {
+    String name;
     AtomicInteger value;
 
     public int getValue() {
         return value.intValue();
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void incrementValue() {
         this.value.incrementAndGet();
     }
 
-    public Counter(AtomicInteger value) {
+    public Counter(String name, AtomicInteger value) {
+        this.name = name;
         this.value = value;
     }
 
