@@ -1,31 +1,27 @@
-package org.pablo.server.repos.impl;
+package org.pablo.server.repositories.inmemory;
 
-import org.pablo.server.exceptions.NotFoundException;
+import org.pablo.server.exceptions.CounterNotFoundException;
 import org.pablo.server.model.Counter;
-import org.pablo.server.repos.CounterRepo;
+import org.pablo.server.repositories.CounterRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-@Transactional(readOnly = true)
-public class CounterRepoImpl implements CounterRepo<String, Counter> {
+public class CounterInMemory implements CounterRepository<String, Counter> {
     ConcurrentHashMap<String, Counter> inMemoryCounterMap = new ConcurrentHashMap<>();
 
     @Override
-    @Transactional
     public Counter create(Counter counter) {
         return inMemoryCounterMap.put(counter.getName(), counter);
     }
 
     @Override
-    @Transactional
     public void increment(String name) {
         if (getByName(name) == null) {
-            throw new NotFoundException("счетчик с именем ".concat(name).concat(" не найден"));
+            throw new CounterNotFoundException(name);
         } else getByName(name).incrementValue();
     }
 
@@ -35,7 +31,6 @@ public class CounterRepoImpl implements CounterRepo<String, Counter> {
     }
 
     @Override
-    @Transactional
     public void delete(String name) {
         inMemoryCounterMap.remove(name);
     }

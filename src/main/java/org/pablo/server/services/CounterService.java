@@ -1,9 +1,9 @@
 package org.pablo.server.services;
 
+import org.pablo.server.exceptions.CounterNotFoundException;
 import org.pablo.server.exceptions.EntityAlreadyExistsException;
-import org.pablo.server.exceptions.NotFoundException;
 import org.pablo.server.model.Counter;
-import org.pablo.server.repos.CounterRepo;
+import org.pablo.server.repositories.CounterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -11,46 +11,56 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CounterService {
-    private final CounterRepo<String, Counter> counterRepo;
+public class CounterService implements CounterServiceInterface {
+    private final CounterRepository<String, Counter> counterRepository;
 
     @Autowired
-    public CounterService(@Qualifier("counterRepoImpl") CounterRepo<String, Counter> counterRepo) {
-        this.counterRepo = counterRepo;
+    public CounterService(@Qualifier("counterInMemory") CounterRepository<String, Counter> counterRepository) {
+        this.counterRepository = counterRepository;
     }
 
+    @Override
     public Counter create(Counter counter) {
-        if (counterRepo.exists(counter.getName())) {
-            throw new EntityAlreadyExistsException("не удалось добавить, счетчик с таким именем уже существует");
+        if (counterRepository.exists(counter.getName())) {
+            throw new EntityAlreadyExistsException("a counter with the same name already exists");
         }
-        return counterRepo.create(counter);
+        return counterRepository.create(counter);
     }
 
+    @Override
     public List<String> getAll() {
-        return counterRepo.getAll();
+        return counterRepository.getAll();
     }
 
+    @Override
     public int getSum() {
-        return counterRepo.getSumAllCounters();
+        return counterRepository.getSumAllCounters();
     }
 
+    @Override
     public void increment(String name) {
-        if (counterRepo.exists(name)) {
-            counterRepo.increment(name);
-        } else
-            throw new NotFoundException("не удалось увеличить значение. Счетчик с именем ".concat(name).concat(" не существует"));
+        if (counterRepository.exists(name)) {
+            counterRepository.increment(name);
+        } else {
+            throw new CounterNotFoundException(name);
+        }
     }
 
+    @Override
     public void delete(String name) {
-        if (counterRepo.exists(name)) {
-            counterRepo.delete(name);
-        } else
-            throw new NotFoundException("не удалось удалить. Счетчик с именем ".concat(name).concat(" не существует"));
+        if (counterRepository.exists(name)) {
+            counterRepository.delete(name);
+        } else {
+            throw new CounterNotFoundException(name);
+        }
     }
 
+    @Override
     public Counter getValue(String name) {
-        if (counterRepo.exists(name)) {
-            return counterRepo.getValue(name);
-        } else throw new NotFoundException("не удалось найти счетчик с именем ".concat(name));
+        if (counterRepository.exists(name)) {
+            return counterRepository.getValue(name);
+        } else {
+            throw new CounterNotFoundException(name);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package org.pablo.server.controllers;
 
 import org.pablo.server.model.Counter;
-import org.pablo.server.services.CounterService;
+import org.pablo.server.services.CounterServiceInterface;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,9 +10,9 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api")
 public class CounterController {
-    private final CounterService counterService;
+    private final CounterServiceInterface counterService;
 
-    public CounterController(@Qualifier(value = "counterService") CounterService counterService) {
+    public CounterController(@Qualifier(value = "counterService") CounterServiceInterface counterService) {
         this.counterService = counterService;
     }
 

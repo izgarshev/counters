@@ -1,8 +1,8 @@
-package org.pablo.server.repos;
+package org.pablo.server.repositories;
 
 import java.util.List;
 
-public interface CounterRepo<T, K> {
+public interface CounterRepository<T, K> {
     K create(K counter);
     void increment(T name);
     K getValue(T name);

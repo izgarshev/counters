@@ -1,10 +1,10 @@
-package org.pablo.server.repos.impl;
+package org.pablo.server.repositories.inmemory;
 
 import org.pablo.server.CounterTestData;
+import org.pablo.server.exceptions.CounterNotFoundException;
 import org.pablo.server.exceptions.EntityAlreadyExistsException;
-import org.pablo.server.exceptions.NotFoundException;
 import org.pablo.server.model.Counter;
-import org.pablo.server.repos.CounterRepo;
+import org.pablo.server.repositories.CounterRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -15,21 +15,20 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-class InMemoryCounterRepo implements CounterRepo<String, Counter> {
+class InMemoryCounterRepository implements CounterRepository<String, Counter> {
     private final Map<String, Counter> counterMap = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void setUp() {
         CounterTestData.initMap();
         CounterTestData.inMemoryCounterRepository.forEach(counterMap::put);
-        System.out.println(counterMap);
     }
 
     @Override
     public Counter create(Counter counter) {
         Objects.requireNonNull(counter, "counter must not be null");
         if (exists(counter.getName())) {
-            throw new EntityAlreadyExistsException("невозможно добавить счетчик с таким именем");
+            throw new EntityAlreadyExistsException("a counter with the same name already exists");
         }
         return counterMap.put(counter.getName(), counter);
     }
@@ -37,15 +36,14 @@ class InMemoryCounterRepo implements CounterRepo<String, Counter> {
     @Override
     public void increment(String name) {
         if (getByName(name) == null) {
-            throw new NotFoundException("счетчик с именем ".concat(name).concat(" не найден"));
-        } else getByName(name).incrementValue();
+            throw new CounterNotFoundException("counter with name ".concat(name).concat(" not found"));
+        } else {
+            getByName(name).incrementValue();
+        }
     }
 
     @Override
     public Counter getValue(String name) {
-        System.out.println(getAll());
-        System.out.println("get value");
-        System.out.println(name);
         return getByName(name);
     }
 
@@ -73,7 +71,7 @@ class InMemoryCounterRepo implements CounterRepo<String, Counter> {
         if (exists(name)) {
             return counterMap.get(name);
         } else {
-            throw new NotFoundException("счетчик с именем ".concat(name).concat(" не существует"));
+            throw new CounterNotFoundException("counter with name ".concat(name).concat(" not found"));
         }
     }
 }
