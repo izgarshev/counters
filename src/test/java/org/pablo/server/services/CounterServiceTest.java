@@ -1,50 +1,53 @@
 package org.pablo.server.services;
 
 import org.junit.jupiter.api.Test;
+import org.pablo.server.CounterTestData;
+import org.pablo.server.exceptions.EntityAlreadyExistsException;
+import org.pablo.server.exceptions.NotFoundException;
 import org.pablo.server.model.Counter;
+import org.pablo.server.repos.CounterRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+@SpringBootTest
 class CounterServiceTest {
-    CounterService service;
 
-    public CounterServiceTest(CounterService counterService) {
-        this.service = counterService;
-    }
+    @Autowired
+    @Qualifier(value = "inMemoryCounterRepo")
+    private CounterRepo<String, Counter> counterRepo;
 
     @Test
     void create() {
-//        Meal created = service.create(getNew(), USER_ID);
-//        int newId = created.id();
-//        Meal newMeal = getNew();
-//        newMeal.setId(newId);
-//        MEAL_MATCHER.assertMatch(created, newMeal);
-//        MEAL_MATCHER.assertMatch(service.get(newId, USER_ID), newMeal);
-        Counter created = service.create(new Counter("new", new AtomicInteger(4)));
-        Counter newCounter = new Counter(created.getName(), new AtomicInteger(created.getValue()));
-        assertEquals(created, newCounter);
-
+        Counter newCounter = CounterTestData.forCreate;
+        counterRepo.create(newCounter);
+        Counter fromRepo = counterRepo.getValue(newCounter.getName());
+        assertEquals(newCounter, fromRepo);
     }
 
     @Test
-    void getAll() {
-    }
-
-    @Test
-    void getSum() {
+    void createFailTest() {
+        counterRepo.create(CounterTestData.forRepeat);
+        assertThrows(EntityAlreadyExistsException.class, () -> counterRepo.create(CounterTestData.forRepeat));
     }
 
     @Test
     void increment() {
+        Counter counter = counterRepo.getValue(CounterTestData.counter1.getName());
+        int startedValue = counter.getValue();
+        counter.incrementValue();
+        assertEquals(counter.getValue(), startedValue + 1);
     }
 
     @Test
     void delete() {
-    }
-
-    @Test
-    void getValue() {
+        Counter counter = CounterTestData.forDelete;
+        String name = counter.getName();
+        counterRepo.create(counter);
+        counterRepo.delete(counter.getName());
+        assertThrows(NotFoundException.class, () -> counterRepo.getValue(name));
     }
 }

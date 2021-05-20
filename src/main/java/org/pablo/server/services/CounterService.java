@@ -4,6 +4,8 @@ import org.pablo.server.exceptions.EntityAlreadyExistsException;
 import org.pablo.server.exceptions.NotFoundException;
 import org.pablo.server.model.Counter;
 import org.pablo.server.repos.CounterRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +14,8 @@ import java.util.List;
 public class CounterService {
     private final CounterRepo<String, Counter> counterRepo;
 
-    public CounterService(CounterRepo<String, Counter> counterRepo) {
+    @Autowired
+    public CounterService(@Qualifier("counterRepoImpl") CounterRepo<String, Counter> counterRepo) {
         this.counterRepo = counterRepo;
     }
 
@@ -34,16 +37,20 @@ public class CounterService {
     public void increment(String name) {
         if (counterRepo.exists(name)) {
             counterRepo.increment(name);
-        } else throw new NotFoundException("не удалось увеличить значение. Счетчик с именем ".concat(name).concat(" не существует"));
+        } else
+            throw new NotFoundException("не удалось увеличить значение. Счетчик с именем ".concat(name).concat(" не существует"));
     }
 
     public void delete(String name) {
         if (counterRepo.exists(name)) {
             counterRepo.delete(name);
-        } else throw new NotFoundException("не удалось удалить. Счетчик с именем ".concat(name).concat(" не существует"));
+        } else
+            throw new NotFoundException("не удалось удалить. Счетчик с именем ".concat(name).concat(" не существует"));
     }
 
     public Counter getValue(String name) {
-        return counterRepo.getValue(name);
+        if (counterRepo.exists(name)) {
+            return counterRepo.getValue(name);
+        } else throw new NotFoundException("не удалось найти счетчик с именем ".concat(name));
     }
 }

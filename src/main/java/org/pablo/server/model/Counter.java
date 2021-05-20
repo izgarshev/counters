@@ -4,8 +4,14 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Counter {
-    String name;
-    AtomicInteger value;
+    /**
+     * уникальное имя счетчика
+     */
+    private final String name;
+    /**
+     * значение счетчика
+     */
+    private final AtomicInteger value;
 
     public int getValue() {
         return value.intValue();
@@ -29,18 +35,19 @@ public class Counter {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Counter counter = (Counter) o;
-        return Objects.equals(value, counter.value);
+        return name.equals(counter.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(name);
     }
 
     @Override
     public String toString() {
         return "Counter{" +
-                "value=" + value +
+                "name='" + name + '\'' +
+                ", value=" + value +
                 '}';
     }
 }

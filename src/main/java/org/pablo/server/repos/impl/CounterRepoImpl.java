@@ -6,24 +6,14 @@ import org.pablo.server.repos.CounterRepo;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 @Transactional(readOnly = true)
 public class CounterRepoImpl implements CounterRepo<String, Counter> {
     ConcurrentHashMap<String, Counter> inMemoryCounterMap = new ConcurrentHashMap<>();
-
-    @PostConstruct
-    public void initMap() {
-        Counter counter1 = new Counter("counter1", new AtomicInteger(3));
-        Counter counter2 = new Counter("counter2", new AtomicInteger(6));
-        inMemoryCounterMap.put(counter1.getName(), counter1);
-        inMemoryCounterMap.put(counter2.getName(), counter2);
-    }
 
     @Override
     @Transactional
